@@ -183,13 +183,10 @@ class AwsCognitoClient
 
 
     /**
-     * Registers a user in the given user pool.
-     *
      * @param $username
      * @param $password
      * @param array $attributes
-     *
-     * @return bool
+     * @return \Aws\Result|false
      */
     public function register($username, $password, array $attributes = [])
     {
@@ -210,7 +207,8 @@ class AwsCognitoClient
             throw $e;
         }
 
-        return (bool)$response['UserConfirmed'];
+        //        return (bool)$response['UserConfirmed'];
+        return $response;
     } //Function ends
 
 
