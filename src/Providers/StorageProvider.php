@@ -3,13 +3,13 @@
 /*
  * This file is part of AWS Cognito Auth solution.
  *
- * (c) EllaiSys <support@ellaisys.com>
+ * (c) trusfin <support@trusfin.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Ellaisys\Cognito\Providers;
+namespace Trusfin\Cognito\Providers;
 
 use Illuminate\Support\Facades\Cache;
 use Psr\SimpleCache\CacheInterface as PsrCacheInterface;
@@ -29,7 +29,7 @@ class StorageProvider
      *
      * @var string
      */
-    protected $tag = 'ellaisys.aws.cognito';
+    protected $tag = 'trusfin.aws.cognito';
 
 
     /**
@@ -63,7 +63,7 @@ class StorageProvider
      *
      * @param  string  $key
      * @param  mixed  $value
-     * @param  int  $minutes
+     * @param  int  $duration
      *
      * @return void
      */
@@ -71,7 +71,7 @@ class StorageProvider
     {
         // If the laravel version is 5.8 or higher then convert minutes to seconds.
         if ($this->laravelVersion !== null
-            && is_int($minutes)
+            && is_int($duration)
             && version_compare($this->laravelVersion, '5.8', '<')
         ) {
             $duration = ($duration/60);
@@ -208,5 +208,4 @@ class StorageProvider
             }
         }
     } //Function ends
-    
 } //Class ends

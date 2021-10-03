@@ -3,20 +3,18 @@
 /*
  * This file is part of AWS Cognito Auth solution.
  *
- * (c) EllaiSys <support@ellaisys.com>
+ * (c) Trusfin <support@Trusfin.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Ellaisys\Cognito;
-
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Password;
+namespace Trusfin\Cognito;
 
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Password;
 use PHPUnit\Exception;
 
 class AwsCognitoClient
@@ -26,115 +24,101 @@ class AwsCognitoClient
      *
      * @var string
      */
-    const USER_STATUS_CONFIRMED = 'CONFIRMED';
-
+    public const USER_STATUS_CONFIRMED = 'CONFIRMED';
 
     /**
      * Constant representing the user needs a new password.
      *
      * @var string
      */
-    const NEW_PASSWORD_CHALLENGE = 'NEW_PASSWORD_REQUIRED';
-
+    public const NEW_PASSWORD_CHALLENGE = 'NEW_PASSWORD_REQUIRED';
 
     /**
      * Constant representing the user needs to reset password.
      *
      * @var string
      */
-    const RESET_REQUIRED_PASSWORD = 'RESET_REQUIRED';
-
+    public const RESET_REQUIRED_PASSWORD = 'RESET_REQUIRED';
 
     /**
      * Constant representing the force new password status.
      *
      * @var string
      */
-    const FORCE_CHANGE_PASSWORD = 'FORCE_CHANGE_PASSWORD';
-
+    public const FORCE_CHANGE_PASSWORD = 'FORCE_CHANGE_PASSWORD';
 
     /**
      * Constant representing the password reset required exception.
      *
      * @var string
      */
-    const RESET_REQUIRED = 'PasswordResetRequiredException';
-
+    public const RESET_REQUIRED = 'PasswordResetRequiredException';
 
     /**
      * Constant representing the user not found exception.
      *
      * @var string
      */
-    const USER_NOT_FOUND = 'UserNotFoundException';
-
+    public const USER_NOT_FOUND = 'UserNotFoundException';
 
     /**
      * Constant representing the username exists exception.
      *
      * @var string
      */
-    const USERNAME_EXISTS = 'UsernameExistsException';
-
+    public const USERNAME_EXISTS = 'UsernameExistsException';
 
     /**
      * Constant representing the invalid password exception.
      *
      * @var string
      */
-    const INVALID_PASSWORD = 'InvalidPasswordException';
-
+    public const INVALID_PASSWORD = 'InvalidPasswordException';
 
     /**
      * Constant representing the code mismatch exception.
      *
      * @var string
      */
-    const CODE_MISMATCH = 'CodeMismatchException';
-
+    public const CODE_MISMATCH = 'CodeMismatchException';
 
     /**
      * Constant representing the expired code exception.
      *
      * @var string
      */
-    const EXPIRED_CODE = 'ExpiredCodeException';
+    public const EXPIRED_CODE = 'ExpiredCodeException';
 
-     /**
+    /**
      * Constant representing the SMS MFA challenge.
      *
      * @var string
      */
-    const SMS_MFA = 'SMS_MFA';
-
+    public const SMS_MFA = 'SMS_MFA';
 
     /**
      * @var CognitoIdentityProviderClient
      */
     protected $client;
 
-
     /**
      * @var string
      */
     protected $clientId;
-
 
     /**
      * @var string
      */
     protected $clientSecret;
 
-
     /**
      * @var string
      */
     protected $poolId;
 
-
     /**
      * AwsCognitoClient constructor.
-     * @param CognitoIdentityProviderClient $client
+     *
      * @param string $clientId
      * @param string $clientSecret
      * @param string $poolId
@@ -144,21 +128,21 @@ class AwsCognitoClient
         $clientId,
         $clientSecret,
         $poolId
-    )
-    {
+    ) {
         $this->client = $client;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
         $this->poolId = $poolId;
     }
 
-
     /**
      * Checks if credentials of a user are valid.
      *
      * @see http://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminInitiateAuth.html
+     *
      * @param string $username
      * @param string $password
+     *
      * @return \Aws\Result|bool
      */
     public function authenticate($username, $password)
@@ -179,18 +163,18 @@ class AwsCognitoClient
         }
 
         return $response;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * @param $username
      * @param $password
-     * @param array $attributes
+     *
      * @return \Aws\Result|false
      */
     public function register($username, $password, array $attributes = [])
     {
-
         try {
             $response = $this->client->signUp([
                 'ClientId' => $this->clientId,
@@ -200,7 +184,7 @@ class AwsCognitoClient
                 'Username' => $username,
             ]);
         } catch (CognitoIdentityProviderException $e) {
-            if ($e->getAwsErrorCode() === self::USERNAME_EXISTS) {
+            if (self::USERNAME_EXISTS === $e->getAwsErrorCode()) {
                 return false;
             } //End if
 
@@ -209,18 +193,21 @@ class AwsCognitoClient
 
         //        return (bool)$response['UserConfirmed'];
         return $response;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Send a password reset code to a user.
+     *
      * @see https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_ForgotPassword.html
      *
      * @param string $username
-     * @param array $clientMetadata (optional)
+     * @param array  $clientMetadata (optional)
+     *
      * @return string
      */
-    public function sendResetLink($username, array $clientMetadata=null)
+    public function sendResetLink($username, array $clientMetadata = null)
     {
         try {
             //Build payload
@@ -233,7 +220,7 @@ class AwsCognitoClient
 
             $result = $this->client->forgotPassword($payload);
         } catch (CognitoIdentityProviderException $e) {
-            if ($e->getAwsErrorCode() === self::USER_NOT_FOUND) {
+            if (self::USER_NOT_FOUND === $e->getAwsErrorCode()) {
                 return Password::INVALID_USER;
             } //End if
 
@@ -241,23 +228,23 @@ class AwsCognitoClient
         }
 
         return Password::RESET_LINK_SENT;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Reset a users password based on reset code.
-     * https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_ConfirmForgotPassword.html
+     * https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_ConfirmForgotPassword.html.
      *
      * @param string $code
      * @param string $username
      * @param string $password
+     *
      * @return string
      */
     public function resetPassword($code, $username, $password)
     {
         try {
-
-
             $this->client->confirmForgotPassword([
                 'ClientId' => $this->clientId,
                 'ConfirmationCode' => $code,
@@ -266,35 +253,40 @@ class AwsCognitoClient
                 'Username' => $username,
             ]);
         } catch (CognitoIdentityProviderException $e) {
-            if ($e->getAwsErrorCode() === self::USER_NOT_FOUND) {
+            if (self::USER_NOT_FOUND === $e->getAwsErrorCode()) {
                 return Password::INVALID_USER;
             }
 
-            if ($e->getAwsErrorCode() === self::INVALID_PASSWORD) {
+            if (self::INVALID_PASSWORD === $e->getAwsErrorCode()) {
                 return Lang::has('passwords.password') ? 'passwords.password' : $e->getAwsErrorMessage();
             }
 
-            if ($e->getAwsErrorCode() === self::CODE_MISMATCH || $e->getAwsErrorCode() === self::EXPIRED_CODE) {
+            if (self::CODE_MISMATCH === $e->getAwsErrorCode() || self::EXPIRED_CODE === $e->getAwsErrorCode()) {
                 return Password::INVALID_TOKEN;
+            }
+
+            if ('LimitExceededException' === $e->getAwsErrorCode()) {
+                return 'Attempt limit exceeded, please try after some time';
             }
 
             throw $e;
         }
 
         return Password::PASSWORD_RESET;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Register a user and send them an email to set their password.
-     * https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminCreateUser.html
+     * https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminCreateUser.html.
      *
      * @param $username
-     * @param array $attributes
      * @param array $clientMetadata (optional)
+     *
      * @return bool
      */
-    public function inviteUser(string $username, string $password=null, array $attributes = [], array $clientMetadata=null)
+    public function inviteUser(string $username, string $password = null, array $attributes = [], array $clientMetadata = null)
     {
         //Force validate email
         if ($attributes['email']) {
@@ -305,7 +297,7 @@ class AwsCognitoClient
         $payload = [
             'UserPoolId' => $this->poolId,
             'Username' => $username,
-            'UserAttributes' => $this->formatAttributes($attributes)
+            'UserAttributes' => $this->formatAttributes($attributes),
         ];
 
         //Set Client Metadata
@@ -318,16 +310,16 @@ class AwsCognitoClient
             $payload['TemporaryPassword'] = $password;
         } //End if
 
-        if (config('cognito.add_user_delivery_mediums')!="DEFAULT") {
+        if ('DEFAULT' != config('cognito.add_user_delivery_mediums')) {
             $payload['DesiredDeliveryMediums'] = [
-                config('cognito.add_user_delivery_mediums')
+                config('cognito.add_user_delivery_mediums'),
             ];
         } //End if
 
         try {
             $this->client->adminCreateUser($payload);
         } catch (CognitoIdentityProviderException $e) {
-            if ($e->getAwsErrorCode() === self::USERNAME_EXISTS) {
+            if (self::USERNAME_EXISTS === $e->getAwsErrorCode()) {
                 return false;
             } //End if
 
@@ -335,8 +327,9 @@ class AwsCognitoClient
         }
 
         return true;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Set a new password for a user that has been flagged as needing a password change.
@@ -345,6 +338,7 @@ class AwsCognitoClient
      * @param string $username
      * @param string $password
      * @param string $session
+     *
      * @return bool
      */
     public function confirmPassword($username, $password, $session)
@@ -362,7 +356,7 @@ class AwsCognitoClient
                 'ChallengeName' => 'NEW_PASSWORD_REQUIRED',
             ]);
         } catch (CognitoIdentityProviderException $e) {
-            if ($e->getAwsErrorCode() === self::CODE_MISMATCH || $e->getAwsErrorCode() === self::EXPIRED_CODE) {
+            if (self::CODE_MISMATCH === $e->getAwsErrorCode() || self::EXPIRED_CODE === $e->getAwsErrorCode()) {
                 return Password::INVALID_TOKEN;
             } //End if
 
@@ -370,8 +364,9 @@ class AwsCognitoClient
         }
 
         return Password::PASSWORD_RESET;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * @param string $username
@@ -386,8 +381,9 @@ class AwsCognitoClient
                 'Username' => $username,
             ]);
         } //End if
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Sets the specified user's password in a user pool as an administrator.
@@ -396,7 +392,8 @@ class AwsCognitoClient
      *
      * @param string $username
      * @param string $password
-     * @param bool $permanent
+     * @param bool   $permanent
+     *
      * @return bool
      */
     public function setUserPassword($username, $password, $permanent = true)
@@ -409,11 +406,11 @@ class AwsCognitoClient
                 'UserPoolId' => $this->poolId,
             ]);
         } catch (CognitoIdentityProviderException $e) {
-            if ($e->getAwsErrorCode() === self::USER_NOT_FOUND) {
+            if (self::USER_NOT_FOUND === $e->getAwsErrorCode()) {
                 return Password::INVALID_USER;
             } //End if
 
-            if ($e->getAwsErrorCode() === self::INVALID_PASSWORD) {
+            if (self::INVALID_PASSWORD === $e->getAwsErrorCode()) {
                 return Lang::has('passwords.password') ? 'passwords.password' : $e->getAwsErrorMessage();
             } //End if
 
@@ -421,17 +418,15 @@ class AwsCognitoClient
         }
 
         return Password::PASSWORD_RESET;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Changes the password for a specified user in a user pool.
      *
      * @see https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_ChangePassword.html
      *
-     * @param string $accessToken
-     * @param string $passwordOld
-     * @param string $passwordNew
      * @return bool
      */
     public function changePassword(string $accessToken, string $passwordOld, string $passwordNew)
@@ -440,22 +435,26 @@ class AwsCognitoClient
             $this->client->changePassword([
                 'AccessToken' => $accessToken,
                 'PreviousPassword' => $passwordOld,
-                'ProposedPassword' => $passwordNew
+                'ProposedPassword' => $passwordNew,
             ]);
         } catch (CognitoIdentityProviderException $e) {
-            if ($e->getAwsErrorCode() === self::USER_NOT_FOUND) {
+            if (self::USER_NOT_FOUND === $e->getAwsErrorCode()) {
                 return Password::INVALID_USER;
             } //End if
 
-            if ($e->getAwsErrorCode() === self::INVALID_PASSWORD) {
+            if (self::INVALID_PASSWORD === $e->getAwsErrorCode()) {
                 return Lang::has('passwords.password') ? 'passwords.password' : $e->getAwsErrorMessage();
+            }
+
+            if ('NotAuthorizedException' === $e->getAwsErrorCode() || 'LimitExceededException' === $e->getAwsErrorCode()) {
+                return false;
             } //End if
 
             throw $e;
         }
+
         return true;
     }
-
 
     public function invalidatePassword($username)
     {
@@ -465,46 +464,51 @@ class AwsCognitoClient
         ]);
     }
 
-
     public function confirmSignUp($username)
     {
         $this->client->adminConfirmSignUp([
             'UserPoolId' => $this->poolId,
             'Username' => $username,
         ]);
-    } //Function ends
+    }
 
+    //Function ends
 
     public function confirmUserSignUp($username, $confirmationCode)
     {
         try {
-            $this->client->confirmSignUp([
+            $userInfo = $this->getUser($username);
+//            dd($userInfo);
+            return $this->client->confirmSignUp([
                 'ClientId' => $this->clientId,
                 'SecretHash' => $this->cognitoSecretHash($username),
                 'Username' => $username,
                 'ConfirmationCode' => $confirmationCode,
             ]);
+
+            // now get user to send email verification code
         } catch (CognitoIdentityProviderException $e) {
-            if ($e->getAwsErrorCode() === self::USER_NOT_FOUND) {
+            if (self::USER_NOT_FOUND === $e->getAwsErrorCode()) {
                 return 'validation.invalid_user';
             } //End if
 
-            if ($e->getAwsErrorCode() === self::CODE_MISMATCH || $e->getAwsErrorCode() === self::EXPIRED_CODE) {
+            if (self::CODE_MISMATCH === $e->getAwsErrorCode() || self::EXPIRED_CODE === $e->getAwsErrorCode()) {
                 return 'validation.invalid_token';
             } //End if
 
-            if ($e->getAwsErrorCode() === 'NotAuthorizedException' AND $e->getAwsErrorMessage() === 'User cannot be confirmed. Current status is CONFIRMED') {
+            if ('NotAuthorizedException' === $e->getAwsErrorCode() and 'User cannot be confirmed. Current status is CONFIRMED' === $e->getAwsErrorMessage()) {
                 return 'validation.confirmed';
             } //End if
 
-            if ($e->getAwsErrorCode() === 'LimitExceededException') {
+            if ('LimitExceededException' === $e->getAwsErrorCode()) {
                 return 'validation.exceeded';
             } //End if
 
             throw $e;
         }
-    } //Function ends
+    }
 
+    //Function ends
 
     public function resendToken($username)
     {
@@ -512,83 +516,70 @@ class AwsCognitoClient
             $this->client->resendConfirmationCode([
                 'ClientId' => $this->clientId,
                 'SecretHash' => $this->cognitoSecretHash($username),
-                'Username' => $username
+                'Username' => $username,
             ]);
         } catch (CognitoIdentityProviderException $e) {
-
-            if ($e->getAwsErrorCode() === self::USER_NOT_FOUND) {
+            if (self::USER_NOT_FOUND === $e->getAwsErrorCode()) {
                 return 'validation.invalid_user';
             } //End if
 
-            if ($e->getAwsErrorCode() === 'LimitExceededException') {
+            if ('LimitExceededException' === $e->getAwsErrorCode()) {
                 return 'validation.exceeded';
             } //End if
 
-            if ($e->getAwsErrorCode() === 'InvalidParameterException') {
+            if ('InvalidParameterException' === $e->getAwsErrorCode()) {
                 return 'validation.confirmed';
             } //End if
 
             throw $e;
         }
-    } //Function ends
+    }
 
+    //Function ends
 
     // HELPER FUNCTIONS
+
     /**
      * Set a users attributes.
      * http://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminUpdateUserAttributes.html.
      *
-     * @param string $username
-     * @param array $attributes
      * @return bool
      */
-    public function setUserAttributes($username, array $attributes)
+    public function setUserAttributes(string $username, array $attributes)
     {
-        $this->client->AdminUpdateUserAttributes([
-            'Username' => $username,
-            'UserPoolId' => $this->poolId,
-            'UserAttributes' => $this->formatAttributes($attributes),
-        ]);
+        try {
+            $this->client->AdminUpdateUserAttributes([
+                'Username' => $username,
+                'UserPoolId' => $this->poolId,
+                'UserAttributes' => $this->formatAttributes($attributes),
+            ]);
+        } catch (CognitoIdentityProviderException $e) {
+            if (self::USER_NOT_FOUND === $e->getAwsErrorCode()) {
+                return 'validation.invalid_user';
+            }
 
-        return true;
-    } //Function ends
+            if ('NotAuthorizedException' === $e->getAwsErrorCode()) {
+                return 'validation.user_not_authorized';
+            }
 
+            if ('InvalidParameterException' === $e->getAwsErrorCode()) {
+                return 'validation.invalid_parameter';
+            }
 
-    /**
-     * Creates the Cognito secret hash.
-     * @param string $username
-     * @return string
-     */
-    protected function cognitoSecretHash($username)
-    {
-        return $this->hash($username . $this->clientId);
-    } //Function ends
+            throw $e;
+        }
 
+        return 'user.updated';
+    }
 
-    /**
-     * Creates a HMAC from a string.
-     *
-     * @param string $message
-     * @return string
-     */
-    protected function hash($message)
-    {
-        $hash = hash_hmac(
-            'sha256',
-            $message,
-            $this->clientSecret,
-            true
-        );
-
-        return base64_encode($hash);
-    } //Function ends
-
+    //Function ends
 
     /**
      * Get user details.
      * http://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_GetUser.html.
      *
      * @param string $username
+     *
      * @return mixed
      */
     public function getUser($username)
@@ -603,23 +594,22 @@ class AwsCognitoClient
         }
 
         return $user;
-    } //Function ends
+    }
+
+    //Function ends
 
     /**
      * Responds to MFA challenge.
-     * https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_RespondToAuthChallenge.html
+     * https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_RespondToAuthChallenge.html.
      *
-     * @param string $session
-     * @param string $challengeValue
-     * @param string $username
-     * @param string $challengeName
      * @return \Aws\Result|false
      */
     public function respondMFAChallenge(string $session, string $challengeValue, string $username, string $challengeName = AwsCognitoClient::SMS_MFA)
     {
         try {
-            $challenge = $this->client->respondToAuthChallenge([
+            $challenge = $this->client->AdminRespondToAuthChallenge([
                 'ClientId' => $this->clientId,
+                'UserPoolId' => $this->poolId,
                 'ChallengeName' => $challengeName,
                 'ChallengeResponses' => [
                     'SMS_MFA_CODE' => $challengeValue,
@@ -628,10 +618,13 @@ class AwsCognitoClient
                 ],
                 'Session' => $session,
             ]);
+//            dd($challenge);
         } catch (CognitoIdentityProviderException $e) {
-            if ($e->getAwsErrorCode() === 'NotAuthorizedException') {
+//            dd($e);
+            if ('NotAuthorizedException' === $e->getAwsErrorCode()) {
                 return 'mfa.not_authorized';
-            } else if ($e->getAwsErrorCode() === self::CODE_MISMATCH) {
+            }
+            if (self::CODE_MISMATCH === $e->getAwsErrorCode()) {
                 return 'mfa.invalid_session';
             }
 
@@ -643,29 +636,63 @@ class AwsCognitoClient
 
     /**
      * Get user details by access token.
-     * https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-cognito-idp-2016-04-18.html#getuser
+     * https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-cognito-idp-2016-04-18.html#getuser.
      *
-     * @param string $token
      * @return mixed
      */
     public function getUserByAccessToken(string $token)
     {
         try {
             $result = $this->client->getUser([
-                'AccessToken' => $token
+                'AccessToken' => $token,
             ]);
         } catch (CognitoIdentityProviderException $e) {
             throw $e;
         } //Try-catch ends
 
         return $result;
-    } //Function ends
+    }
 
+    //Function ends
+
+    /**
+     * Creates the Cognito secret hash.
+     *
+     * @param string $username
+     *
+     * @return string
+     */
+    protected function cognitoSecretHash($username)
+    {
+        return $this->hash($username.$this->clientId);
+    }
+
+    //Function ends
+
+    /**
+     * Creates a HMAC from a string.
+     *
+     * @param string $message
+     *
+     * @return string
+     */
+    protected function hash($message)
+    {
+        $hash = hash_hmac(
+            'sha256',
+            $message,
+            $this->clientSecret,
+            true
+        );
+
+        return base64_encode($hash);
+    }
+
+    //Function ends
 
     /**
      * Format attributes in Name/Value array.
      *
-     * @param array $attributes
      * @return array
      */
     protected function formatAttributes(array $attributes)
@@ -680,16 +707,16 @@ class AwsCognitoClient
         } //Loop ends
 
         return $userAttributes;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Build Client Metadata to be forwarded to Cognito.
      *
-     * @param array $attributes
      * @return array $clientMetadata (optional)
      */
-    protected function buildClientMetadata(array $attributes, array $clientMetadata=null)
+    protected function buildClientMetadata(array $attributes, array $clientMetadata = null)
     {
         if (!empty($clientMetadata)) {
             $userAttributes = array_merge($attributes, $clientMetadata);
@@ -698,6 +725,7 @@ class AwsCognitoClient
         } //End if
 
         return $userAttributes;
-    } //Function ends
+    }
 
+    //Function ends
 } //Class ends

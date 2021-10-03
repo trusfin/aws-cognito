@@ -1,5 +1,3 @@
-<img src="https://www.ellaisys.com/wp-content/uploads/2020/11/eis_aws_cognito.png" width="100%" alt="EllaiSys AWS Cloud Capability"/>
-
 # Laravel Package to manage Web and API authentication with AWS Cognito
 AWS Cognito package using the AWS SDK for PHP
 

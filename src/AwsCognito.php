@@ -3,77 +3,59 @@
 /*
  * This file is part of AWS Cognito Auth solution.
  *
- * (c) EllaiSys <support@ellaisys.com>
+ * (c) Trusfin <support@Trusfin.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Ellaisys\Cognito;
+namespace Trusfin\Cognito;
 
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Contracts\Auth\UserProvider;
-use Illuminate\Contracts\Auth\Authenticatable;
-
-use Ellaisys\Cognito\AwsCognitoClaim;
-use Ellaisys\Cognito\AwsCognitoManager;
-use Ellaisys\Cognito\Http\Parser\Parser;
-
-use Exception;
-use Ellaisys\Cognito\Exceptions\AwsCognitoException;
-use Ellaisys\Cognito\Exceptions\InvalidTokenException;
+use Trusfin\Cognito\Exceptions\AwsCognitoException;
+use Trusfin\Cognito\Exceptions\InvalidTokenException;
+use Trusfin\Cognito\Http\Parser\Parser;
 
 class AwsCognito
 {
     /**
      * The authentication provider.
      *
-     * @var \Ellaisys\Cognito\Contracts\Providers\Auth
+     * @var \Trusfin\Cognito\Contracts\Providers\Auth
      */
     protected $auth;
 
-
     /**
-     * Aws Cognito Manager
+     * Aws Cognito Manager.
      *
-     * @var \Ellaisys\Cognito\AwsCognitoManager
+     * @var \Trusfin\Cognito\AwsCognitoManager
      */
     protected $manager;
-
 
     /**
      * The HTTP parser.
      *
-     * @var \Ellaisys\Cognito\Http\Parser\Parser
+     * @var \Trusfin\Cognito\Http\Parser\Parser
      */
     protected $parser;
 
-
     /**
-     * The AwsCognito Claim token
-     * 
-     * @var \Ellaisys\Cognito\AwsCognitoClaim|null
+     * The AwsCognito Claim token.
+     *
+     * @var null|\Trusfin\Cognito\AwsCognitoClaim
      */
     protected $claim;
-
 
     /**
      * The AWS Cognito token.
      *
-     * @var \Ellaisys\Cognito\AwsCognitoToken|string|null
+     * @var null|string|\Trusfin\Cognito\AwsCognitoToken
      */
     protected $token;
-
 
     /**
      * JWT constructor.
      *
-     * @param  \Ellaisys\Cognito\Manager  $manager
-     * @param  \Ellaisys\Cognito\Http\Parser\Parser  $parser
-     *
-     * @return void
+     * @param \Trusfin\Cognito\Manager $manager
      */
     public function __construct(AwsCognitoManager $manager, Parser $parser)
     {
@@ -81,15 +63,14 @@ class AwsCognito
         $this->parser = $parser;
     }
 
-
     /**
      * Get the token.
      *
-     * @return \Ellaisys\Cognito\AwsCognitoToken|null
+     * @return null|\Trusfin\Cognito\AwsCognitoToken
      */
     public function getToken()
     {
-        if ($this->token === null) {
+        if (null === $this->token) {
             try {
                 $this->parseToken();
             } catch (AwsCognitoException $e) {
@@ -98,15 +79,16 @@ class AwsCognito
         } //End if
 
         return $this->token;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Parse the token from the request.
      *
-     * @throws \Ellaisys\Cognito\Exceptions\AwsCognitoException
+     * @throws \Trusfin\Cognito\Exceptions\AwsCognitoException
      *
-     * @return \Ellaisys\Cognito\AwsCognito
+     * @return \Trusfin\Cognito\AwsCognito
      */
     public function parseToken()
     {
@@ -118,15 +100,16 @@ class AwsCognito
         } //End if
 
         return $this->setToken($token);
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Set the token.
      *
-     * @param  \string  $token
+     * @param \string $token
      *
-     * @return \Ellaisys\Cognito\AwsCognito
+     * @return \Trusfin\Cognito\AwsCognito
      */
     public function setToken(string $token)
     {
@@ -136,26 +119,26 @@ class AwsCognito
         } //End if
 
         return $this;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Get the token.
      *
-     * @return \Ellaisys\Cognito\AwsCognitoClaim|null
+     * @return null|\Trusfin\Cognito\AwsCognitoClaim
      */
     public function getClaim()
     {
-        return (!empty($this->claim))?$this->claim:null;
-    } //Function ends
+        return (!empty($this->claim)) ? $this->claim : null;
+    }
 
+    //Function ends
 
     /**
      * Set the claim.
      *
-     * @param  \Ellaisys\Cognito\AwsCognitoClaim  $claim
-     *
-     * @return \Ellaisys\Cognito\AwsCognito
+     * @return \Trusfin\Cognito\AwsCognito
      */
     public function setClaim(AwsCognitoClaim $claim)
     {
@@ -163,13 +146,16 @@ class AwsCognito
         $this->token = $this->setToken($claim->getToken());
 
         return $this;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Unset the current token.
      *
-     * @return \Ellaisys\Cognito\AwsCognito
+     * @param mixed $forceForever
+     *
+     * @return \Trusfin\Cognito\AwsCognito
      */
     public function unsetToken($forceForever = false)
     {
@@ -179,39 +165,40 @@ class AwsCognito
         $this->token = null;
 
         return $this;
-    } //Function ends
-
+    }
 
     /**
      * Set the request instance.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @return \Ellaisys\Cognito\AwsCognito
+     * @return \Trusfin\Cognito\AwsCognito
      */
     public function setRequest(Request $request)
     {
         $this->parser->setRequest($request);
 
         return $this;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Get the Parser instance.
      *
-     * @return \Ellaisys\Cognito\Http\Parser\Parser
+     * @return \Trusfin\Cognito\Http\Parser\Parser
      */
     public function parser()
     {
         return $this->parser;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Authenticate a user via a token.
      *
-     * @return \Ellaisys\Cognito\AwsCognito|false
+     * @return false|\Trusfin\Cognito\AwsCognito
      */
     public function authenticate()
     {
@@ -223,23 +210,25 @@ class AwsCognito
         } //End if
 
         return $this; //->user();
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Alias for authenticate().
      *
-     * @return \Tymon\JWTAuth\Contracts\JWTSubject|false
+     * @return false|\Tymon\JWTAuth\Contracts\JWTSubject
      */
     public function toUser()
     {
         return $this->authenticate();
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Get the authenticated user.
-     * 
+     *
      * @throws InvalidTokenException
      *
      * @return \Illuminate\Contracts\Auth\Authenticatable
@@ -252,8 +241,9 @@ class AwsCognito
         } //End if
 
         return $this->claim->getUser();
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Persist token.
@@ -263,6 +253,7 @@ class AwsCognito
     public function storeToken()
     {
         return $this->manager->encode($this->claim)->store();
-    } //Function ends
+    }
 
+    //Function ends
 } //Class ends

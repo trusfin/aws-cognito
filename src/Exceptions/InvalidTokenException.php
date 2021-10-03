@@ -1,6 +1,6 @@
 <?php
 
-namespace Ellaisys\Cognito\Exceptions;
+namespace Trusfin\Cognito\Exceptions;
 
 use Throwable;
 
@@ -9,7 +9,6 @@ use Illuminate\Auth\AuthenticationException;
 
 class InvalidTokenException extends Exception
 {
-
     /**
      * Report the exception.
      *
@@ -32,5 +31,4 @@ class InvalidTokenException extends Exception
     {
         return parent::render($request, $exception);
     }
-    
 } //Class ends

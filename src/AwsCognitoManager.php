@@ -3,31 +3,24 @@
 /*
  * This file is part of AWS Cognito Auth solution.
  *
- * (c) EllaiSys <support@ellaisys.com>
+ * (c) Trusfin <support@Trusfin.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Ellaisys\Cognito;
+namespace Trusfin\Cognito;
 
-use Ellaisys\Cognito\AwsCognitoToken;
-use Ellaisys\Cognito\AwsCognitoClaim;
-use Ellaisys\Cognito\Providers\StorageProvider;
-
-use Exception;
-use Ellaisys\Cognito\Exceptions\AwsCognitoException;
-use Ellaisys\Cognito\Exceptions\TokenBlacklistedException;
+use Trusfin\Cognito\Providers\StorageProvider;
 
 class AwsCognitoManager
 {
     /**
      * The provider.
      *
-     * @var \Ellaisys\Cognito\Providers\StorageProvider
+     * @var \Trusfin\Cognito\Providers\StorageProvider
      */
     protected $provider;
-
 
     /**
      * The blacklist.
@@ -36,38 +29,31 @@ class AwsCognitoManager
      */
     protected $blacklist;
 
-
     /**
      * The AWS Cognito token.
      *
-     * @var string|null
+     * @var null|string
      */
     protected $token;
 
-
     /**
-     * The AwsCognito Claim token
-     * 
-     * @var \Ellaisys\Cognito\AwsCognitoClaim|null
+     * The AwsCognito Claim token.
+     *
+     * @var null|\Trusfin\Cognito\AwsCognitoClaim
      */
     protected $claim;
-
 
     /**
      * Constructor.
      *
-     * @param  \Ellaisys\Cognito\Providers\StorageProvider  $provider
-     * @param  \Tymon\JWTAuth\Blacklist  $blacklist
-     * @param  \Tymon\JWTAuth\Factory  $payloadFactory
-     *
-     * @return void
+     * @param \Tymon\JWTAuth\Blacklist $blacklist
+     * @param \Tymon\JWTAuth\Factory   $payloadFactory
      */
-    public function __construct(StorageProvider $provider, $blacklist=null)
+    public function __construct(StorageProvider $provider, $blacklist = null)
     {
         $this->provider = $provider;
         $this->blacklist = $blacklist;
     }
-
 
     /**
      * Encode the claim.
@@ -80,8 +66,9 @@ class AwsCognitoManager
         $this->token = $claim->getToken();
 
         return $this;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Decode token.
@@ -90,9 +77,10 @@ class AwsCognitoManager
      */
     public function decode()
     {
-        return ($this->claim)?$this->claim:null;
-    } //Function ends
+        return ($this->claim) ? $this->claim : null;
+    }
 
+    //Function ends
 
     /**
      * Persist token.
@@ -102,12 +90,13 @@ class AwsCognitoManager
     public function store()
     {
         $data = $this->claim->getData();
-        $durationInSecs = ($data)?(int) $data['ExpiresIn']:3600;
+        $durationInSecs = ($data) ? (int) $data['ExpiresIn'] : 3600;
         $this->provider->add($this->token, json_encode($this->claim), $durationInSecs);
 
         return true;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Get Token from store.
@@ -118,11 +107,12 @@ class AwsCognitoManager
     {
         $this->token = $token;
         $claim = $this->provider->get($token);
-        $this->claim = $claim?json_decode($claim, true):null;
+        $this->claim = $claim ? json_decode($claim, true) : null;
 
         return $this;
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Release token.
@@ -134,6 +124,7 @@ class AwsCognitoManager
         $this->provider->destroy($token);
 
         return $this;
-    } //Function ends
+    }
 
+    //Function ends
 } //Class ends

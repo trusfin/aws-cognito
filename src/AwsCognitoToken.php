@@ -3,19 +3,18 @@
 /*
  * This file is part of AWS Cognito Auth solution.
  *
- * (c) EllaiSys <support@ellaisys.com>
+ * (c) Trusfin <support@Trusfin.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Ellaisys\Cognito;
+namespace Trusfin\Cognito;
 
-use Ellaisys\Cognito\Validators\AwsCognitoTokenValidator;
+use Trusfin\Cognito\Validators\AwsCognitoTokenValidator;
 
 class AwsCognitoToken
 {
-    
     /**
      * @var string
      */
@@ -31,7 +30,7 @@ class AwsCognitoToken
      */
     public function __construct($token)
     {
-        $this->token = (string) (new AwsCognitoTokenValidator)->check($token);
+        $this->token = (string) (new AwsCognitoTokenValidator())->check($token);
     }
 
 
@@ -55,5 +54,4 @@ class AwsCognitoToken
     {
         return $this->get();
     } //Function ends
-
 } //Class ends

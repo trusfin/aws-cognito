@@ -3,13 +3,13 @@
 /*
  * This file is part of AWS Cognito Auth solution.
  *
- * (c) EllaiSys <support@ellaisys.com>
+ * (c) Trusfin <support@Trusfin.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Ellaisys\Cognito\Http\Parser;
+namespace Trusfin\Cognito\Http\Parser;
 
 use Illuminate\Http\Request;
 
@@ -22,7 +22,7 @@ class Parser
      */
     private $chain;
 
-    
+
     /**
      * The request.
      *
@@ -123,5 +123,4 @@ class Parser
 
         return $this;
     } //Function ends
-
 } //Class ends

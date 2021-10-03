@@ -3,17 +3,16 @@
 /*
  * This file is part of AWS Cognito Auth solution.
  *
- * (c) EllaiSys <support@ellaisys.com>
+ * (c) Trusfin <support@Trusfin.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Ellaisys\Cognito\Contracts\Storage;
+namespace Trusfin\Cognito\Contracts\Storage;
 
 interface StorageContract
 {
-    
     /**
      * @param  string  $key
      * @param  mixed  $value

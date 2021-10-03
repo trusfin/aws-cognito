@@ -1,21 +1,16 @@
 {
     "name": "trusfin/aws-cognito",
     "description": "AWS Cognito package that allows Auth and other related features using the AWS SDK for PHP",
-    "keywords": ["php", "laravel", "aws", "cognito", "auth", "authentication", "oauth", "user pool", "ellaisys"],
+    "keywords": ["php", "laravel", "aws", "cognito", "auth", "authentication", "oauth", "user pool", "trusfin"],
     "type": "library",
     "license": "MIT",
-    "homepage": "https://github.com/ellaisys/aws-cognito",
+    "homepage": "https://github.com/trusfin/aws-cognito",
     "authors": [
         {
-            "name": "EllaiSys",
-            "email": "support@ellaisys.com",
-            "role": "owner",
-            "homepage": "https://ellaisys.github.io/"
+            "name": "trusfin",
+            "role": "owner"
         }
     ],
-    "support": {
-        "email": "support@ellaisys.com"
-    },
     "prefer-stable": true,
     "minimum-stability": "stable",
     "require": {
@@ -28,13 +23,13 @@
     },
     "autoload": {
         "psr-4": {
-          "Ellaisys\\Cognito\\": "src/"
+          "Trusfin\\Cognito\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Ellaisys\\Cognito\\Providers\\AwsCognitoServiceProvider"
+                "Trusfin\\Cognito\\Providers\\AwsCognitoServiceProvider"
             ],
             "aliases": {
             }

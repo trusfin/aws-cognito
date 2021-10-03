@@ -1,6 +1,6 @@
 <?php
 
-namespace Ellaisys\Cognito\Exceptions;
+namespace Trusfin\Cognito\Exceptions;
 
 use Throwable;
 
@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Log;
 
 class InvalidUserFieldException extends Exception
 {
-
     /**
      * Report the exception.
      *
@@ -34,5 +33,4 @@ class InvalidUserFieldException extends Exception
     {
         return parent::render($request, $exception);
     }
-    
 } //Class ends

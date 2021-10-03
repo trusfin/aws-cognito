@@ -3,15 +3,15 @@
 /*
  * This file is part of AWS Cognito Auth solution.
  *
- * (c) EllaiSys <support@ellaisys.com>
+ * (c) Trusfin <support@Trusfin.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Ellaisys\Cognito\Validators;
+namespace Trusfin\Cognito\Validators;
 
-use Ellaisys\Cognito\Exceptions\InvalidTokenException;
+use Trusfin\Cognito\Exceptions\InvalidTokenException;
 
 class AwsCognitoTokenValidator
 {
@@ -30,7 +30,7 @@ class AwsCognitoTokenValidator
     /**
      * @param  string  $token
      *
-     * @throws \Ellaisys\Cognito\Exceptions\InvalidTokenException
+     * @throws \Trusfin\Cognito\Exceptions\InvalidTokenException
      *
      * @return string
      */
@@ -50,5 +50,4 @@ class AwsCognitoTokenValidator
 
         return $token;
     } //Function ends
-
 } //Class ends

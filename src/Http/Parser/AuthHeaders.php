@@ -3,20 +3,20 @@
 /*
  * This file is part of AWS Cognito Auth solution.
  *
- * (c) EllaiSys <support@ellaisys.com>
+ * (c) Trusfin <support@Trusfin.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Ellaisys\Cognito\Http\Parser;
+namespace Trusfin\Cognito\Http\Parser;
 
 use Illuminate\Http\Request;
-//use Ellaisys\Cognito\Contracts\Http\Parser as ParserContract;
+
+//use Trusfin\Cognito\Contracts\Http\Parser as ParserContract;
 
 class AuthHeaders //implements ParserContract
 {
-    
     /**
      * The header name.
      *
@@ -89,5 +89,4 @@ class AuthHeaders //implements ParserContract
         $this->prefix = $headerPrefix;
         return $this;
     } //Function ends
-
 } //Class ends

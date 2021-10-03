@@ -3,51 +3,43 @@
 /*
  * This file is part of AWS Cognito Auth solution.
  *
- * (c) EllaiSys <support@ellaisys.com>
+ * (c) Trusfin <support@Trusfin.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Ellaisys\Cognito\Auth;
+namespace Trusfin\Cognito\Auth;
 
 use App\Models\User;
 use Aws\Result as AWSResult;
-use Ellaisys\Cognito\AwsCognito;
-use Ellaisys\Cognito\AwsCognitoClaim;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
-
-use Ellaisys\Cognito\AwsCognitoClient;
-
-use Exception;
 use Illuminate\Validation\ValidationException;
-use Ellaisys\Cognito\Exceptions\InvalidUserFieldException;
-use Ellaisys\Cognito\Exceptions\AwsCognitoException;
+use Trusfin\Cognito\AwsCognito;
+use Trusfin\Cognito\AwsCognitoClaim;
+use Trusfin\Cognito\AwsCognitoClient;
 
 trait RespondsMFAChallenge
 {
     /**
      * The AwsCognito instance.
      *
-     * @var \Ellaisys\Cognito\AwsCognito
+     * @var \Trusfin\Cognito\AwsCognito
      */
     protected $cognito;
 
-
     /**
      * RespondsMFAChallenge constructor.
-     *
-     * @param AwsCognito $cognito
      */
-    public function __construct(AwsCognito $cognito) {
+    public function __construct(AwsCognito $cognito)
+    {
         $this->cognito = $cognito;
     }
 
     /**
+     * @param mixed $request
+     *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      * @throws ValidationException
      */
@@ -66,15 +58,20 @@ trait RespondsMFAChallenge
         //Create AWS Cognito Client
         $client = app()->make(AwsCognitoClient::class);
 
+        // get user uuid
+        $user = User::where('email', $request['username'])->first();
+//        dd($user->uuid);
         //Responds MFA challenge
-        $result = $client->respondMFAChallenge($request['session'], $request['value'], $request['email']);
+        $result = $client->respondMFAChallenge($request['session'], $request['challenge_value'], $user->uuid);
 
         if (is_string($result)) {
             return $response = response()->json(['error' => 'cognito.'.$result], 400);
-        } else if ($result instanceof AWSResult) {
-            $user = User::where('email', $request['email'])->first();
+        }
+        if ($result instanceof AWSResult) {
+//            $user = User::where('email', $request['username'])->first();
             $claim = new AwsCognitoClaim($result, $user, 'email');
             $this->cognito->setClaim($claim)->storeToken();
+
             return $result['AuthenticationResult'];
         }
 
@@ -89,9 +86,9 @@ trait RespondsMFAChallenge
     protected function rules()
     {
         return [
-            'session'    => 'required',
-            'value'      => 'required|string',
-            'email'      => 'required|email',
+            'session' => 'required',
+            'value' => 'required|string',
+            'email' => 'required|email',
         ];
     }
 }

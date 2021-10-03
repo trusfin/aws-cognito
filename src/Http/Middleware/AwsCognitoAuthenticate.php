@@ -3,22 +3,22 @@
 /*
  * This file is part of AWS Cognito Auth solution.
  *
- * (c) EllaiSys <support@ellaisys.com>
+ * (c) Trusfin <support@Trusfin.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Ellaisys\Cognito\Http\Middleware;
+namespace Trusfin\Cognito\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 
 use Exception;
-use Ellaisys\Cognito\Exceptions\AwsCognitoException;
-use Ellaisys\Cognito\Exceptions\NoTokenException;
-use Ellaisys\Cognito\Exceptions\InvalidTokenException;
+use Trusfin\Cognito\Exceptions\AwsCognitoException;
+use Trusfin\Cognito\Exceptions\NoTokenException;
+use Trusfin\Cognito\Exceptions\InvalidTokenException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class AwsCognitoAuthenticate extends BaseMiddleware
@@ -33,7 +33,6 @@ class AwsCognitoAuthenticate extends BaseMiddleware
     public function handle(Request $request, Closure $next, $module=null, $right=null)
     {
         try {
-
             $routeMiddleware = $request->route()->middleware();
 
             if (empty($routeMiddleware) || (count($routeMiddleware)<1)) {
@@ -54,5 +53,4 @@ class AwsCognitoAuthenticate extends BaseMiddleware
             return response()->json(['error' => $e->getMessage()], 401);
         } //Try-catch ends
     } //Function ends
-
 } //Class ends

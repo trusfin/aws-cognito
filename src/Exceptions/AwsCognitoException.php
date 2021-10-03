@@ -1,6 +1,6 @@
 <?php
 
-namespace Ellaisys\Cognito\Exceptions;
+namespace Trusfin\Cognito\Exceptions;
 
 use Exception;
 use Throwable;
@@ -29,5 +29,4 @@ class AwsCognitoException extends Exception
     {
         return parent::render($request, $exception);
     }
-    
 } //Class ends

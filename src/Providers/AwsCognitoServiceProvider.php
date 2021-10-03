@@ -3,50 +3,42 @@
 /*
  * This file is part of AWS Cognito Auth solution.
  *
- * (c) EllaiSys <support@ellaisys.com>
+ * (c) Trusfin <support@Trusfin.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Ellaisys\Cognito\Providers;
+namespace Trusfin\Cognito\Providers;
 
-use Ellaisys\Cognito\AwsCognito;
-use Ellaisys\Cognito\AwsCognitoClient;
-use Ellaisys\Cognito\AwsCognitoManager;
-use Ellaisys\Cognito\Guards\CognitoSessionGuard;
-use Ellaisys\Cognito\Guards\CognitoTokenGuard;
-
-use Ellaisys\Cognito\Http\Parser\Parser;
-use Ellaisys\Cognito\Http\Parser\AuthHeaders;
-
-use Ellaisys\Cognito\Providers\StorageProvider;
-
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Foundation\Application;
-
-use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
+use Trusfin\Cognito\AwsCognito;
+use Trusfin\Cognito\AwsCognitoClient;
+use Trusfin\Cognito\AwsCognitoManager;
+use Trusfin\Cognito\Guards\CognitoSessionGuard;
+use Trusfin\Cognito\Guards\CognitoTokenGuard;
+use Trusfin\Cognito\Http\Parser\AuthHeaders;
+use Trusfin\Cognito\Http\Parser\Parser;
 
 /**
  * Class AwsCognitoServiceProvider.
  */
 class AwsCognitoServiceProvider extends ServiceProvider
 {
-    
     /**
      * Register the application services.
-     *
-     * @return void
      */
     public function register()
     {
         //Register Alias
         $this->registerAliases();
-    } //Function ends
+    }
 
+    //Function ends
 
     public function boot()
     {
@@ -72,33 +64,29 @@ class AwsCognitoServiceProvider extends ServiceProvider
         //Set Guards
         $this->extendWebAuthGuard();
         $this->extendApiAuthGuard();
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Bind some aliases.
-     *
-     * @return void
      */
     protected function registerAliases()
     {
-        $this->app->alias('ellaisys.aws.cognito', AwsCognito::class);
+        $this->app->alias('trusfin.aws.cognito', AwsCognito::class);
     }
 
-
     /**
-     * Register Cognito Facades
-     *
-     * @return void
+     * Register Cognito Facades.
      */
     protected function registerCognitoFacades()
     {
         //Request Parser
-        $this->app->singleton('ellaisys.aws.cognito.parser', function (Application $app) {
+        $this->app->singleton('trusfin.aws.cognito.parser', function (Application $app) {
             $parser = new Parser(
                 $app['request'],
                 [
-                    new AuthHeaders,
+                    new AuthHeaders(),
                     // new QueryString,
                     // new InputSource,
                     // new RouteParams,
@@ -112,44 +100,43 @@ class AwsCognitoServiceProvider extends ServiceProvider
         });
 
         //Storage Provider
-        $this->app->singleton('ellaisys.aws.cognito.provider.storage', function (Application $app) {
-            return (new StorageProvider(
+        $this->app->singleton('trusfin.aws.cognito.provider.storage', function (Application $app) {
+            return new StorageProvider(
                 config('cognito.storage_provider')
-            ));
+            );
         });
 
         //Aws Cognito Manager
-        $this->app->singleton('ellaisys.aws.cognito.manager', function (Application $app) {
-            return (new AwsCognitoManager(
-                $app['ellaisys.aws.cognito.provider.storage']
-            ));
+        $this->app->singleton('trusfin.aws.cognito.manager', function (Application $app) {
+            return new AwsCognitoManager(
+                $app['trusfin.aws.cognito.provider.storage']
+            );
         });
 
-        $this->app->singleton('ellaisys.aws.cognito', function (Application $app, array $config) {
-            return (new AwsCognito(
-                $app['ellaisys.aws.cognito.manager'],
-                $app['ellaisys.aws.cognito.parser']
-            ));
+        $this->app->singleton('trusfin.aws.cognito', function (Application $app, array $config) {
+            return new AwsCognito(
+                $app['trusfin.aws.cognito.manager'],
+                $app['trusfin.aws.cognito.parser']
+            );
         });
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
-     * Register Cognito Provider
-     *
-     * @return void
+     * Register Cognito Provider.
      */
     protected function registerCognitoProvider()
     {
         $this->app->singleton(AwsCognitoClient::class, function (Application $app) {
             $aws_config = [
-                'region'      => config('cognito.region'),
-                'version'     => config('cognito.version')
+                'region' => config('cognito.region'),
+                'version' => config('cognito.version'),
             ];
 
             //Set AWS Credentials
             $credentials = config('cognito.credentials');
-            if (! empty($credentials['key']) && ! empty($credentials['secret'])) {
+            if (!empty($credentials['key']) && !empty($credentials['secret'])) {
                 $aws_config['credentials'] = Arr::only($credentials, ['key', 'secret', 'token']);
             } //End if
 
@@ -160,13 +147,12 @@ class AwsCognitoServiceProvider extends ServiceProvider
                 config('cognito.user_pool_id')
             );
         });
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Extend Cognito Web/Session Auth.
-     *
-     * @return void
      */
     protected function extendWebAuthGuard()
     {
@@ -185,20 +171,18 @@ class AwsCognitoServiceProvider extends ServiceProvider
 
             return $guard;
         });
-    } //Function ends
+    }
 
+    //Function ends
 
     /**
      * Extend Cognito Api Auth.
-     *
-     * @return void
      */
     protected function extendApiAuthGuard()
     {
         Auth::extend('cognito-token', function (Application $app, $name, array $config) {
-
             $guard = new CognitoTokenGuard(
-                $app['ellaisys.aws.cognito'],
+                $app['trusfin.aws.cognito'],
                 $client = $app->make(AwsCognitoClient::class),
                 $app['request'],
                 Auth::createUserProvider($config['provider'])
@@ -208,6 +192,7 @@ class AwsCognitoServiceProvider extends ServiceProvider
 
             return $guard;
         });
-    } //Function ends
-    
+    }
+
+    //Function ends
 } //Class ends

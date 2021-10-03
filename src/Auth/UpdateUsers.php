@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Trusfin\Cognito\AwsCognitoClient;
 use Trusfin\Cognito\Exceptions\InvalidUserFieldException;
 
-trait RegistersUsers
+trait UpdateUsers
 {
     /**
      * Handle a registration request for the application.
@@ -26,12 +26,12 @@ trait RegistersUsers
      *
      * @return \Illuminate\Http\Response
      */
-    public function createCognitoUser(Collection $request, array $clientMetadata = null)
+    public function updateCognitoUser(Collection $request, array $clientMetadata = null)
     {
         //Initialize Cognito Attribute array
         $attributes = [];
 
-        //Get the registeration fields
+        // Get the update user fields
         $userFields = config('cognito.cognito_user_fields');
 
         //Iterate the fields
@@ -49,10 +49,7 @@ trait RegistersUsers
         //Register the user in Cognito
         $userKey = $request->has('username') ? 'username' : 'email';
 
-        //Temporary Password paramter
-        $password = $request->has('password') ? $request['password'] : null;
-
-        return app()->make(AwsCognitoClient::class)->register($request[$userKey], $password, $attributes);
+        return app()->make(AwsCognitoClient::class)->setUserAttributes($request[$userKey], $attributes);
     }
 
     //Function ends

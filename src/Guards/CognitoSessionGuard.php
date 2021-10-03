@@ -3,34 +3,28 @@
 /*
  * This file is part of AWS Cognito Auth solution.
  *
- * (c) EllaiSys <support@ellaisys.com>
+ * (c) Trusfin <support@Trusfin.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Ellaisys\Cognito\Guards;
+namespace Trusfin\Cognito\Guards;
 
+use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
 use Aws\Result as AwsResult;
-
-use Illuminate\Support\Facades\Log;
-
+use Exception;
 use Illuminate\Auth\SessionGuard;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Session\Session;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Request;
-
-use Illuminate\Database\Eloquent\Model;
-
-use Ellaisys\Cognito\AwsCognitoClient;
-
-use Exception;
-use Ellaisys\Cognito\Exceptions\AwsCognitoException;
-use Ellaisys\Cognito\Exceptions\NoLocalUserException;
-use Ellaisys\Cognito\Exceptions\InvalidUserModelException;
-use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
+use Trusfin\Cognito\AwsCognitoClient;
+use Trusfin\Cognito\Exceptions\AwsCognitoException;
+use Trusfin\Cognito\Exceptions\InvalidUserModelException;
+use Trusfin\Cognito\Exceptions\NoLocalUserException;
 
 class CognitoSessionGuard extends SessionGuard implements StatefulGuard
 {
@@ -39,22 +33,13 @@ class CognitoSessionGuard extends SessionGuard implements StatefulGuard
      */
     protected $client;
 
-
     /**
      * @var Authentication Challenge
      */
     protected $challengeName;
 
-
     /**
      * CognitoSessionGuard constructor.
-     * 
-     * @param string $name
-     * @param AwsCognitoClient $client
-     * @param UserProvider $provider
-     * @param Session $session
-     * @param null|Request $request
-
      */
     public function __construct(
         string $name,
@@ -67,40 +52,14 @@ class CognitoSessionGuard extends SessionGuard implements StatefulGuard
         parent::__construct($name, $provider, $session, $request);
     }
 
-
-    /**
-     * @param mixed $user
-     * @param array $credentials
-     * @return bool
-     * @throws InvalidUserModelException
-     */
-    protected function hasValidCredentials($user, $credentials)
-    {
-        /** @var Result $response */
-        $result = $this->client->authenticate($credentials['email'], $credentials['password']);
-
-        if (!empty($result) && $result instanceof AwsResult) {
-
-            if (isset($result['ChallengeName']) && 
-                in_array($result['ChallengeName'], config('cognito.forced_challenge_names'))) 
-            {
-                $this->challengeName = $result['ChallengeName'];
-            } //End if
-
-            return ($user instanceof Authenticatable);
-        } //End if
-
-        return false;
-    } //Function ends
-
-
     /**
      * Attempt to authenticate an existing user using the credentials
-     * using Cognito
+     * using Cognito.
      *
-     * @param  array  $credentials
-     * @param  bool   $remember
+     * @param bool $remember
+     *
      * @throws
+     *
      * @return bool
      */
     public function attempt(array $credentials = [], $remember = false)
@@ -131,11 +90,14 @@ class CognitoSessionGuard extends SessionGuard implements StatefulGuard
                             return redirect(route(config('cognito.force_redirect_route_name')))
                                 ->with('success', true)
                                 ->with('force', true)
-                                ->with('messaage', $this->challengeName);
+                                ->with('messaage', $this->challengeName)
+                            ;
+
                             break;
-                        
+
                         default:
                             return true;
+
                             break;
                     } //End switch
                 } //End if
@@ -167,11 +129,14 @@ class CognitoSessionGuard extends SessionGuard implements StatefulGuard
                         return redirect(route('cognito.form.reset.password.code'))
                             ->with('success', false)
                             ->with('force', true)
-                            ->with('messaage', $e->getAwsErrorCode());
+                            ->with('messaage', $e->getAwsErrorCode())
+                        ;
+
                         break;
-                    
+
                     default:
                         return $e->getAwsErrorCode();
+
                         break;
                 } //End switch
             } //End if
@@ -192,6 +157,52 @@ class CognitoSessionGuard extends SessionGuard implements StatefulGuard
 
             return false;
         } //Try-catch ends
-    } //Function ends
+    }
 
+    //Function ends
+
+    /**
+     * @param mixed $user
+     * @param array $credentials
+     *
+     * @throws InvalidUserModelException
+     *
+     * @return bool
+     */
+    protected function hasValidCredentials($user, $credentials)
+    {
+        // @var Result $result
+        try {
+            $result = $this->client->authenticate($credentials['email'], $credentials['password']);
+        } catch (Exception $e) {
+            return false;
+        }
+
+        if ($result instanceof AwsResult) {
+            if (
+                isset($result['ChallengeName'])
+                && in_array($result['ChallengeName'], config('cognito.forced_challenge_names'))
+            ) {
+                $this->challengeName = $result['ChallengeName'];
+            }
+
+            $this->parseAuthenticationResult($result);
+
+            return 200 === $result['@metadata']['statusCode'] && isset($result['AuthenticationResult']['AccessToken']);
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array|AwsResult $result
+     */
+    protected function parseAuthenticationResult($result)
+    {
+        if (isset($result['AuthenticationResult']['AccessToken'])) {
+            $this->getSession()->put(config('cognito.session_access_token_key'), $result['AuthenticationResult']['AccessToken']);
+            $this->getSession()->put(config('cognito.session_refresh_token_key'), $result['AuthenticationResult']['RefreshToken']);
+            $this->getSession()->put(config('cognito.session_id_token_key'), $result['AuthenticationResult']['IdToken']);
+        }
+    }
 } //Class ends

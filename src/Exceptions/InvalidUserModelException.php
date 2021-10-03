@@ -1,6 +1,6 @@
 <?php
 
-namespace Ellaisys\Cognito\Exceptions;
+namespace Trusfin\Cognito\Exceptions;
 
 use Throwable;
 
@@ -31,5 +31,4 @@ class InvalidUserModelException extends Exception
     {
         return parent::render($request, $exception);
     }
-    
 } //Class ends
